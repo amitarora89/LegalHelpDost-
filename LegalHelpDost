@@ -1,0 +1,198 @@
+from kivymd.app import MDApp
+from kivymd.uix.screen import MDScreen
+from kivy.lang import Builder
+from kivy.utils import get_color_from_hex
+
+class MainScreen(MDScreen): pass
+class GSTScreen(MDScreen): pass
+class TaxScreen(MDScreen): pass
+class CounselScreen(MDScreen): pass
+class PropertyScreen(MDScreen): pass
+
+KV = '''
+MDScreenManager:
+    MainScreen:
+    GSTScreen:
+    TaxScreen:
+    CounselScreen:
+    PropertyScreen:
+
+<MainScreen>:
+    name: "main"
+    ScrollView:
+        MDBoxLayout:
+            orientation: "vertical"
+            adaptive_height: True
+            padding: "20dp"
+            spacing: "20dp"
+            size_hint_y: None
+
+            MDLabel:
+                text: "Welcome to"
+                halign: "center"
+                style: "H5"
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            MDLabel:
+                text: "LegalHelpDost"
+                halign: "center"
+                style: "H3"
+                bold: True
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            MDLabel:
+                text: "One Click Legal Assistance"
+                halign: "center"
+                style: "Subtitle1"
+                theme_text_color: "Secondary"
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            MDLabel:
+                text: "Your Friendly Tax & Legal Companion"
+                halign: "center"
+                style: "Caption"
+                theme_text_color: "Hint"
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            MDBoxLayout:
+                orientation: "vertical"
+                spacing: "25dp"
+                adaptive_height: True
+                size_hint_x: .9
+                pos_hint: {"center_x": .4}
+
+                MDRectangleFlatIconButton:
+                    text: "GST Return Filing"
+                    icon: "file-document-outline"
+                    md_bg_color: app.custom_button_color
+                    text_color: "white"
+                    icon_color: "white"
+                    on_release: app.root.current = "gst"
+
+                MDRectangleFlatIconButton:
+                    text: "Income Tax Assistance"
+                    icon: "gavel"
+                    md_bg_color: app.custom_button_color
+                    text_color: "white"
+                    icon_color: "white"
+                    on_release: app.root.current = "tax"
+
+                MDRectangleFlatIconButton:
+                    text: "Legal Counsel"
+                    icon: "scale-balance"
+                    md_bg_color: app.custom_button_color
+                    text_color: "white"
+                    icon_color: "white"
+                    on_release: app.root.current = "counsel"
+
+                MDRectangleFlatIconButton:
+                    text:"Property & Rent Guidance"
+                    icon: "home-city-outline"
+                    md_bg_color: app.custom_button_color
+                    text_color: "white"
+                    icon_color: "white"
+                    on_release: app.root.current = "property"
+
+<GSTScreen>:
+    name: "gst"
+    ScrollView:
+        MDBoxLayout:
+            orientation: 'vertical'
+            adaptive_height: True
+            padding: "20dp"
+            spacing: "20dp"
+            size_hint_y: None
+
+            MDLabel:
+                text: "GST Page"
+                halign: "center"
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            MDRaisedButton:
+                text: "Back"
+                pos_hint: {"center_x": .5}
+                size_hint_y: None
+                height: "48dp"
+                on_release: app.root.current = "main"
+
+<TaxScreen>:
+    name: "tax"
+    ScrollView:
+        MDBoxLayout:
+            orientation: 'vertical'
+            adaptive_height: True
+            padding: "20dp"
+            spacing: "20dp"
+            size_hint_y: None
+
+            MDLabel:
+                text: "Tax Page"
+                halign: "center"
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            MDRaisedButton:
+                text: "Back"
+                pos_hint: {"center_x": .5}
+                size_hint_y: None
+                height: "48dp"
+                on_release: app.root.current = "main"
+
+<CounselScreen>:
+    name: "counsel"
+    ScrollView:
+        MDBoxLayout:
+            orientation: 'vertical'
+            adaptive_height: True
+            padding: "20dp"
+            spacing: "20dp"
+            size_hint_y: None
+
+            MDLabel:
+                text: "Counsel Page"
+                halign: "center"
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            MDRaisedButton:
+                text: "Back"
+                pos_hint: {"center_x": .5}
+                size_hint_y: None
+                height: "48dp"
+                on_release: app.root.current = "main"
+
+<PropertyScreen>:
+    name: "property"
+    ScrollView:
+        MDBoxLayout:
+            orientation: 'vertical'
+            adaptive_height: True
+            padding: "20dp"
+            spacing: "20dp"
+            size_hint_y: None
+
+            MDLabel:
+                text: "Property Page"
+                halign: "center"
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            MDRaisedButton:
+                text: "Back"
+                pos_hint: {"center_x": .5}
+                size_hint_y: None
+                height: "48dp"
+                on_release: app.root.current = "main"
+'''
+
+class LegalHelpDostApp(MDApp):
+    def build(self):
+        self.custom_button_color = get_color_from_hex("#192a56")
+        return Builder.load_string(KV)
+
+LegalHelpDostApp().run()
