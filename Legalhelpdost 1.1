@@ -1,0 +1,617 @@
+from kivymd.app import MDApp
+from kivymd.uix.screen import MDScreen
+from kivymd.uix.button import MDRaisedButton, MDFillRoundFlatButton
+from kivymd.uix.card import MDCard
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.gridlayout import MDGridLayout
+from kivymd.uix.label import MDLabel
+from kivymd.uix.toolbar import MDTopAppBar
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.textfield import MDTextField
+from kivymd.uix.scrollview import MDScrollView
+from kivy.lang import Builder
+from kivy.utils import get_color_from_hex
+from kivy.properties import StringProperty
+from kivy.core.window import Window
+import webbrowser
+from urllib.parse import quote
+
+# --- KV DESIGN SECTIONS ---
+
+KV_SETUP = '''
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+<HomeScreenCard>:
+    orientation: "vertical"
+    padding: "10dp"
+    spacing: "5dp"
+    radius: [15,]
+    elevation: 4
+    ripple_behavior: True
+    md_bg_color: get_color_from_hex("#ffffff")
+    on_release: app.change_screen(root.dest_screen)
+    size_hint: 1, None
+    height: "130dp"
+    
+    MDIcon:
+        icon: root.icon
+        halign: "center"
+        font_size: "38sp"
+        theme_text_color: "Custom"
+        text_color: get_color_from_hex("#1a365d")
+        size_hint_y: None
+        height: "45dp"
+    
+    MDLabel:
+        text: root.text
+        halign: "center"
+        bold: True
+        font_style: "Subtitle2"
+        theme_text_color: "Custom"
+        text_color: get_color_from_hex("#1a365d")
+        size_hint_y: None
+        height: self.texture_size[1]
+
+<CommonTextField@MDTextField>:
+    mode: "rectangle"
+    size_hint_x: 1
+    pos_hint: {"center_x": 0.5}
+
+MDScreenManager:
+    id: screen_manager
+    MainScreen:
+        name: "main"
+    GSTScreen:
+        name: "gst"
+    TaxScreen:
+        name: "tax"
+    PropertyScreen:
+        name: "property"
+    ChallanScreen:
+        name: "challan"
+    CounselScreen:
+        name: "counsel"
+    FeedbackScreen:
+        name: "feedback"
+'''
+
+KV_MAIN_SCREEN = '''
+<MainScreen>:
+    name: "main"
+    
+    MDBoxLayout:
+        orientation: "vertical"
+        
+        MDTopAppBar:
+            title: "LegalHelpDost"
+            elevation: 4
+            md_bg_color: get_color_from_hex("#1a365d")
+            specific_text_color: 1, 1, 1, 1
+            right_action_items: [["dots-vertical", lambda x: app.show_menu()]]
+        
+        MDScrollView:
+            do_scroll_x: False
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                padding: "15dp"
+                spacing: "20dp"
+                
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_x: 0.95
+                    size_hint_y: None
+                    height: "110dp"
+                    pos_hint: {"center_x": 0.5}
+                    radius: [20,]
+                    md_bg_color: get_color_from_hex("#2d6ae3")
+                    padding: "15dp"
+                    elevation: 4
+                    MDLabel:
+                        text: "Welcome User!"
+                        font_style: "H6"
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 1
+                        bold: True
+                    MDLabel:
+                        text: "Complete Legal Solutions"
+                        font_style: "Body1"
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 0.9
+
+                MDLabel:
+                    text: "Our Services"
+                    font_style: "H6"
+                    bold: True
+                    adaptive_height: True
+                    padding_x: "10dp"
+                    color: get_color_from_hex("#333333")
+
+                MDGridLayout:
+                    cols: 2
+                    adaptive_height: True
+                    spacing: "15dp"
+                    padding: "5dp"
+                    size_hint_x: 1
+                    
+                    HomeScreenCard:
+                        icon: "file-document-outline"
+                        text: "GST Filing"
+                        dest_screen: "gst"
+                    HomeScreenCard:
+                        icon: "calculator-variant"
+                        text: "ITR Filing"
+                        dest_screen: "tax"
+                    HomeScreenCard:
+                        icon: "home-city-outline"
+                        text: "Property Papers"
+                        dest_screen: "property"
+                    HomeScreenCard:
+                        icon: "motorbike"
+                        text: "Pay Challan"
+                        dest_screen: "challan"
+                    HomeScreenCard:
+                        icon: "gavel"
+                        text: "Lawyer Help"
+                        dest_screen: "counsel"
+                    HomeScreenCard:
+                        icon: "message-draw"
+                        text: "App Feedback"
+                        dest_screen: "feedback"
+'''
+
+KV_GST_SCREEN = '''
+<GSTScreen>:
+    name: "gst"
+    MDBoxLayout:
+        orientation: "vertical"
+        MDTopAppBar:
+            title: "GST Services"
+            left_action_items: [["arrow-left", lambda x: app.change_screen('main')]]
+            md_bg_color: get_color_from_hex("#1976D2")
+            elevation: 4
+        MDScrollView:
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "20dp"
+                MDLabel:
+                    text: "File GST Returns"
+                    halign: "center"
+                    font_style: "H5"
+                    bold: True
+                    adaptive_height: True
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_x: 0.9
+                    pos_hint: {"center_x": 0.5}
+                    padding: "20dp"
+                    spacing: "20dp"
+                    radius: [15,]
+                    adaptive_height: True
+                    elevation: 3
+                    CommonTextField:
+                        id: gst_name
+                        hint_text: "Business Name"
+                    CommonTextField:
+                        id: gst_number
+                        hint_text: "GST Number (Optional)"
+                    CommonTextField:
+                        id: gst_phone
+                        hint_text: "Phone Number"
+                        input_filter: "int"
+                    
+                    MDRaisedButton:
+                        text: "Send via WhatsApp"
+                        size_hint_x: 1
+                        md_bg_color: get_color_from_hex("#1976D2")
+                        on_release: app.send_gst_whatsapp()
+'''
+
+KV_TAX_SCREEN = '''
+<TaxScreen>:
+    name: "tax"
+    MDBoxLayout:
+        orientation: "vertical"
+        MDTopAppBar:
+            title: "ITR Filing"
+            left_action_items: [["arrow-left", lambda x: app.change_screen('main')]]
+            md_bg_color: get_color_from_hex("#F57C00")
+            elevation: 4
+        MDScrollView:
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "20dp"
+                MDLabel:
+                    text: "File ITR Online"
+                    halign: "center"
+                    font_style: "H5"
+                    bold: True
+                    adaptive_height: True
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_x: 0.9
+                    pos_hint: {"center_x": 0.5}
+                    padding: "20dp"
+                    spacing: "20dp"
+                    radius: [15,]
+                    adaptive_height: True
+                    elevation: 3
+                    CommonTextField:
+                        id: tax_name
+                        hint_text: "Full Name"
+                    CommonTextField:
+                        id: tax_income
+                        hint_text: "Annual Income (Approx)"
+                    CommonTextField:
+                        id: tax_phone
+                        hint_text: "Mobile Number"
+                        input_filter: "int"
+                    
+                    MDRaisedButton:
+                        text: "Send via WhatsApp"
+                        size_hint_x: 1
+                        md_bg_color: get_color_from_hex("#F57C00")
+                        on_release: app.send_tax_whatsapp()
+'''
+
+KV_PROPERTY_SCREEN = '''
+<PropertyScreen>:
+    name: "property"
+    MDBoxLayout:
+        orientation: "vertical"
+        MDTopAppBar:
+            title: "Property Papers"
+            left_action_items: [["arrow-left", lambda x: app.change_screen('main')]]
+            md_bg_color: get_color_from_hex("#388E3C")
+            elevation: 4
+        MDScrollView:
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "20dp"
+                MDLabel:
+                    text: "Draft Legal Documents"
+                    halign: "center"
+                    font_style: "H5"
+                    bold: True
+                    adaptive_height: True
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_x: 0.9
+                    pos_hint: {"center_x": 0.5}
+                    padding: "20dp"
+                    spacing: "20dp"
+                    radius: [15,]
+                    adaptive_height: True
+                    elevation: 3
+                    MDLabel:
+                        text: "Select Document Type:"
+                        adaptive_height: True
+                        bold: True
+                    MDFillRoundFlatButton:
+                        text: "Rent Agreement"
+                        size_hint_x: 1
+                        on_release: app.set_prop_type("Rent Agreement")
+                    MDFillRoundFlatButton:
+                        text: "Sale Deed (Registry)"
+                        size_hint_x: 1
+                        md_bg_color: get_color_from_hex("#5D4037")
+                        on_release: app.set_prop_type("Sale Deed")
+                    CommonTextField:
+                        id: prop_name
+                        hint_text: "Your Name"
+                    CommonTextField:
+                        id: prop_phone
+                        hint_text: "Mobile Number"
+                        input_filter: "int"
+                    
+                    MDRaisedButton:
+                        text: "Send via WhatsApp"
+                        size_hint_x: 1
+                        md_bg_color: get_color_from_hex("#388E3C")
+                        on_release: app.send_prop_whatsapp()
+'''
+
+KV_CHALLAN_SCREEN = '''
+<ChallanScreen>:
+    name: "challan"
+    MDBoxLayout:
+        orientation: "vertical"
+        MDTopAppBar:
+            title: "E-Challan"
+            left_action_items: [["arrow-left", lambda x: app.change_screen('main')]]
+            md_bg_color: get_color_from_hex("#C2185B")
+            elevation: 4
+        MDScrollView:
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "20dp"
+                MDLabel:
+                    text: "Pay Traffic Challan"
+                    halign: "center"
+                    font_style: "H5"
+                    bold: True
+                    adaptive_height: True
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_x: 0.9
+                    pos_hint: {"center_x": 0.5}
+                    padding: "20dp"
+                    spacing: "20dp"
+                    radius: [15,]
+                    adaptive_height: True
+                    elevation: 3
+                    CommonTextField:
+                        id: chal_veh
+                        hint_text: "Vehicle No. (Ex: DL10AB1234)"
+                    CommonTextField:
+                        id: chal_chas
+                        hint_text: "Chassis Last 5 Digits"
+                        input_filter: "int"
+                    CommonTextField:
+                        id: chal_phone
+                        hint_text: "Mobile Number"
+                        input_filter: "int"
+                    
+                    MDRaisedButton:
+                        text: "Send via WhatsApp"
+                        size_hint_x: 1
+                        md_bg_color: get_color_from_hex("#C2185B")
+                        on_release: app.send_challan_whatsapp()
+'''
+
+KV_COUNSEL_SCREEN = '''
+<CounselScreen>:
+    name: "counsel"
+    MDBoxLayout:
+        orientation: "vertical"
+        MDTopAppBar:
+            title: "Expert Lawyer Help"
+            left_action_items: [["arrow-left", lambda x: app.change_screen('main')]]
+            md_bg_color: get_color_from_hex("#7B1FA2")
+            elevation: 4
+        MDScrollView:
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "15dp"
+                MDLabel:
+                    text: "Consult a Lawyer"
+                    halign: "center"
+                    font_style: "H5"
+                    bold: True
+                    adaptive_height: True
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_x: 0.9
+                    pos_hint: {"center_x": 0.5}
+                    padding: "20dp"
+                    spacing: "15dp"
+                    radius: [15,]
+                    adaptive_height: True
+                    elevation: 3
+                    CommonTextField:
+                        id: coun_name
+                        hint_text: "Your Full Name"
+                        icon_right: "account"
+                    CommonTextField:
+                        id: coun_phone
+                        hint_text: "Mobile Number"
+                        icon_right: "phone"
+                        input_filter: "int"
+                    CommonTextField:
+                        id: coun_issue
+                        hint_text: "Legal Issue (e.g., Divorce, Property)"
+                        icon_right: "gavel"
+                    CommonTextField:
+                        id: coun_desc
+                        hint_text: "Describe your case (approx 120 words)..."
+                        multiline: True
+                        max_height: "150dp"
+                        mode: "rectangle"
+                    
+                    MDRaisedButton:
+                        text: "Send via WhatsApp"
+                        size_hint_x: 1
+                        md_bg_color: get_color_from_hex("#7B1FA2")
+                        on_release: app.send_counsel_whatsapp()
+'''
+
+KV_FEEDBACK_SCREEN = '''
+<FeedbackScreen>:
+    name: "feedback"
+    MDBoxLayout:
+        orientation: "vertical"
+        MDTopAppBar:
+            title: "Feedback"
+            left_action_items: [["arrow-left", lambda x: app.change_screen('main')]]
+            md_bg_color: get_color_from_hex("#546E7A")
+            elevation: 4
+        MDScrollView:
+            MDBoxLayout:
+                orientation: "vertical"
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "20dp"
+                MDLabel:
+                    text: "We value your feedback"
+                    halign: "center"
+                    font_style: "H5"
+                    bold: True
+                    adaptive_height: True
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_x: 0.9
+                    pos_hint: {"center_x": 0.5}
+                    padding: "15dp"
+                    spacing: "15dp"
+                    radius: [15,]
+                    adaptive_height: True
+                    elevation: 3
+                    CommonTextField:
+                        id: feed_name
+                        hint_text: "Your Name"
+                    CommonTextField:
+                        id: feed_msg
+                        hint_text: "Write your feedback here..."
+                        multiline: True
+                        max_height: "150dp"
+                    MDRaisedButton:
+                        text: "Send via WhatsApp"
+                        size_hint_x: 1
+                        md_bg_color: get_color_from_hex("#546E7A")
+                        on_release: app.send_feedback_whatsapp()
+'''
+
+# --- PYTHON CLASSES AND LOGIC ---
+
+class HomeScreenCard(MDCard):
+    icon = StringProperty("")
+    text = StringProperty("")
+    dest_screen = StringProperty("")
+
+class MainScreen(MDScreen): pass
+class GSTScreen(MDScreen): pass
+class TaxScreen(MDScreen): pass
+class PropertyScreen(MDScreen): pass
+class ChallanScreen(MDScreen): pass
+class CounselScreen(MDScreen): pass
+class FeedbackScreen(MDScreen): pass
+
+class LegalHelpDostApp(MDApp):
+    # MOBILE NUMBER
+    ADMIN_PHONE = "918948057550"
+    
+    current_doc_type = StringProperty("")
+
+    def build(self):
+        self.theme_cls.theme_style = "Light"
+        self.theme_cls.primary_palette = "Blue"
+        self.dialog = None
+        Window.softinput_mode = 'below_target'
+        
+        full_kv = (KV_SETUP + KV_MAIN_SCREEN + KV_GST_SCREEN + KV_TAX_SCREEN + 
+                   KV_PROPERTY_SCREEN + KV_CHALLAN_SCREEN + KV_COUNSEL_SCREEN + 
+                   KV_FEEDBACK_SCREEN)
+        return Builder.load_string(full_kv)
+
+    # --- WHATSAPP HELPER FUNCTION ---
+    def open_whatsapp(self, message):
+        try:
+            encoded_msg = quote(message)
+            url = f"https://wa.me/{self.ADMIN_PHONE}?text={encoded_msg}"
+            webbrowser.open(url)
+        except Exception as e:
+            self.show_popup("Error", "Could not open WhatsApp.")
+
+    # --- SEND DATA FUNCTIONS (Simplified) ---
+    
+    def send_gst_whatsapp(self):
+        screen = self.root.get_screen('gst')
+        name = screen.ids.gst_name.text
+        gst_num = screen.ids.gst_number.text
+        phone = screen.ids.gst_phone.text
+        
+        if not name or not phone:
+            self.show_popup("Error", "Please fill Name and Phone!")
+            return
+            
+        msg = f"*New GST Request*\nName: {name}\nPhone: {phone}\nGST Num: {gst_num}"
+        self.open_whatsapp(msg)
+        
+    def send_tax_whatsapp(self):
+        screen = self.root.get_screen('tax')
+        name = screen.ids.tax_name.text
+        income = screen.ids.tax_income.text
+        phone = screen.ids.tax_phone.text
+        
+        if not name or not phone:
+            self.show_popup("Error", "Please fill Name and Phone!")
+            return
+        
+        msg = f"*New ITR Request*\nName: {name}\nPhone: {phone}\nIncome: {income}"
+        self.open_whatsapp(msg)
+
+    def set_prop_type(self, type_name):
+        self.current_doc_type = type_name
+        self.show_popup("Selected", f"Document Type: {type_name}")
+
+    def send_prop_whatsapp(self):
+        screen = self.root.get_screen('property')
+        name = screen.ids.prop_name.text
+        phone = screen.ids.prop_phone.text
+        doc_type = self.current_doc_type if self.current_doc_type else "Not Selected"
+        
+        if not name or not phone:
+            self.show_popup("Error", "Please fill details!")
+            return
+        
+        msg = f"*Property Doc Request*\nType: {doc_type}\nName: {name}\nPhone: {phone}"
+        self.open_whatsapp(msg)
+
+    def send_challan_whatsapp(self):
+        screen = self.root.get_screen('challan')
+        veh = screen.ids.chal_veh.text
+        phone = screen.ids.chal_phone.text
+        chas = screen.ids.chal_chas.text
+        
+        if not veh or not phone:
+            self.show_popup("Error", "Fill Vehicle No and Phone!")
+            return
+        
+        msg = f"*Challan Pay Request*\nVehicle: {veh}\nPhone: {phone}\nChassis Last 5: {chas}"
+        self.open_whatsapp(msg)
+
+    def send_counsel_whatsapp(self):
+        screen = self.root.get_screen('counsel')
+        name = screen.ids.coun_name.text
+        phone = screen.ids.coun_phone.text
+        issue = screen.ids.coun_issue.text
+        desc = screen.ids.coun_desc.text
+        
+        if not name or not phone:
+            self.show_popup("Error", "Name and Phone are mandatory!")
+            return
+        
+        msg = f"*Lawyer Consultation*\nName: {name}\nPhone: {phone}\nIssue: {issue}\nDetails: {desc}"
+        self.open_whatsapp(msg)
+
+    def send_feedback_whatsapp(self):
+        screen = self.root.get_screen('feedback')
+        name = screen.ids.feed_name.text
+        msg_text = screen.ids.feed_msg.text
+        
+        if not msg_text:
+            self.show_popup("Error", "Please write feedback!")
+            return
+            
+        msg = f"*App Feedback*\nFrom: {name}\nMessage: {msg_text}"
+        self.open_whatsapp(msg)
+
+    # --- NAVIGATION & UTILS ---
+    def change_screen(self, screen_name):
+        self.root.current = screen_name
+        
+    def show_popup(self, title, text):
+        if self.dialog:
+            self.dialog.dismiss()
+        self.dialog = MDDialog(
+            title=title,
+            text=text,
+            buttons=[MDRaisedButton(text="OK", on_release=lambda x: self.dialog.dismiss())]
+        )
+        self.dialog.open()
+        
+    def show_menu(self):
+        self.show_popup("Info", "LegalHelpDost v1.0\nContact: 8948057550")
+
+if __name__ == '__main__':
+    LegalHelpDostApp().run()
